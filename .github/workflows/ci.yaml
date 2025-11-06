@@ -13,13 +13,6 @@ on:
       - functions/**
       - step-function-workflow/**
 
-  pull_request:
-    branches:
-      - main
-    paths:
-      - functions/**
-      - step-function-workflow/**
-
 permissions:
   id-token: write
   contents: read
@@ -94,6 +87,7 @@ jobs:
         
 
           
+
 
 
 
