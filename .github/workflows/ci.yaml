@@ -23,7 +23,7 @@ permissions:
 jobs:
   changed_files:
     environment: "build"
-    runs-on: ["jccai"]
+    runs-on: ubuntu-latest
 
     outputs:
       files: ${{ steps.extract-folders.outputs.processed_folders }}
@@ -88,4 +88,5 @@ jobs:
           echo "Processed folders: $processed_folders"
           echo "Step Function Workflows: $step_function_workflows"
         
+
           
