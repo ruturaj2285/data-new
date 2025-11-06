@@ -31,8 +31,7 @@ jobs:
 
       - name: Get changed files
         id: changed-files
-        # if: github.ref_type == 'branch' && github.ref_name == 'main' || github.ref_type == 'tag' || github.event_name == 'pull_request'
-        if: github.ref_type == 'branch' && startsWith(github.ref_name, 'develop') || startsWith(github.ref_name, 'hotfixes') || startsWith(github.ref_name, 'release') || github.ref_type == 'tag' || github.event_name == 'pull_request'
+        if: github.ref_type == 'branch' && (startsWith(github.ref_name, 'develop') || startsWith(github.ref_name, 'hotfixes') || startsWith(github.ref_name, 'release')) || github.ref_type == 'tag' || github.event_name == 'pull_request'
         uses: tj-actions/changed-files@v46.0.1
         with:
           dir_names: true
@@ -68,7 +67,8 @@ jobs:
               step_function_workflows="[]"
             fi
             
-            lambda_functions=$(echo "$changed_folders" | jq -r '[.[] | select(startswith("functions"))]')
+            lambda_functions=$(printf '%s\n' "$changed_folders" | jq -r '[.[] | select(startswith("functions"))]')
+            
             formatted_changed_folders=$(echo "$lambda_functions" | sed -e 's/^\[//' -e 's/\]$//' -e 's/\([^,]*\)/"\1"/g')
             formatted_changed_folders="[$formatted_changed_folders]"
             processed_folders=$(echo "$formatted_changed_folders" | jq -r 'map(split("/")[0:2] | join("/")) | unique')
@@ -84,11 +84,6 @@ jobs:
 
           echo "Processed folders: $processed_folders"
           echo "Step Function Workflows: $step_function_workflows"
-        
 
-          
-
-
-
-
-
+          echo "::set-output name=processed_folders::$processed_folders"
+          echo "::set-output name=step_function_workflows::$step_function_workflows"
