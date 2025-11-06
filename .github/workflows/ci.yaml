@@ -9,6 +9,9 @@ on:
       - "develop/*"
     tags:
       - "v*.*.*"
+    paths:
+      - functions/**
+      - step-function-workflow/**
 
   pull_request:
     branches:
@@ -91,4 +94,5 @@ jobs:
         
 
           
+
 
