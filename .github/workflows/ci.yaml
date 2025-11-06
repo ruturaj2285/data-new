@@ -58,16 +58,16 @@ jobs:
             step_function_workflows="[]"
           else
             if [[ "$GITHUB_REF_TYPE" == "branch" ]] && [[ "$GITHUB_REF_NAME" == develop* ]]; then
-              step_function_workflows=$(echo "$changed_folders" | jq -r '[.[] | select(startswith("step-function-workflow/dev/"))]')
+              step_function_workflows=$(printf '%s\n' "$changed_folders" | jq -r '[.[] | select(startswith("step-function-workflow/dev"))]')
             elif [[ "$GITHUB_REF_TYPE" == "branch" ]] && [[ "$GITHUB_REF_NAME" == release* ]]; then
-              step_function_workflows=$(echo "$changed_folders" | jq -r '[.[] | select(startswith("step-function-workflow/stg/"))]')
+              step_function_workflows=$(printf '%s\n' "$changed_folders" | jq -r '[.[] | select(startswith("step-function-workflow/stg"))]')
             elif [[ "$GITHUB_REF_TYPE" == "tag" ]] && [[ "$GITHUB_REF_NAME" != *-rc* ]]; then
-              step_function_workflows=$(echo "$changed_folders" | jq -r '[.[] | select(startswith("step-function-workflow/prod/"))]')
+              step_function_workflows=$(printf '%s\n' "$changed_folders" | jq -r '[.[] | select(startswith("step-function-workflow/prod"))]')
             else
               echo "Branch does not match develop, release, or tag — skipping step-function-workflows."
               step_function_workflows="[]"
-            fi 
-
+            fi
+            
             lambda_functions=$(echo "$changed_folders" | jq -r '[.[] | select(startswith("functions"))]')
             formatted_changed_folders=$(echo "$lambda_functions" | sed -e 's/^\[//' -e 's/\]$//' -e 's/\([^,]*\)/"\1"/g')
             formatted_changed_folders="[$formatted_changed_folders]"
@@ -87,6 +87,7 @@ jobs:
         
 
           
+
 
 
 
