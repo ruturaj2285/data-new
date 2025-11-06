@@ -1,0 +1,91 @@
+name: Jaime-DataCollection
+
+on:
+  workflow_dispatch: {}
+
+  push:
+    branches:
+      - "release/*"
+      - "develop/*"
+    tags:
+      - "v*.*.*"
+
+  pull_request:
+    branches:
+      - main
+  paths:
+      - functions/**
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  changed_files:
+    environment: "build"
+    runs-on: ["jccai"]
+
+    outputs:
+      files: ${{ steps.extract-folders.outputs.processed_folders }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Get changed files
+        id: changed-files
+        # if: github.ref_type == 'branch' && github.ref_name == 'main' || github.ref_type == 'tag' || github.event_name == 'pull_request'
+        if: github.ref_type == 'branch' && startsWith(github.ref_name, 'develop') || startsWith(github.ref_name, 'hotfixes') || startsWith(github.ref_name, 'release') || github.ref_type == 'tag' || github.event_name == 'pull_request'
+        uses: tj-actions/changed-files@v46.0.1
+        with:
+          dir_names: true
+          diff_relative: true
+          dir_names_max_depth: "5"
+          matrix: "true"
+          files: |
+            functions/**
+            step-function-workflow/**
+
+      - name: Extract top-level folders
+        id: extract-folders
+        run: |
+          changed_folders="${{ steps.changed-files.outputs.all_changed_files }}"
+          echo "List of changed folders: $changed_folders"
+
+          current_branch="${GITHUB_REF_NAME}"
+          echo "Current branch: $current_branch"
+
+          # Check if the input is empty or invalid
+          if [[ -z "$changed_folders" || "$changed_folders" == "[]" ]]; then
+            processed_folders="[]"
+            step_function_workflows="[]"
+          else
+            if [[ "$GITHUB_REF_TYPE" == "branch" ]] && [[ "$GITHUB_REF_NAME" == develop* ]]; then
+              step_function_workflows=$(echo "$changed_folders" | jq -r '[.[] | select(startswith("step-function-workflow/dev/"))]')
+            elif [[ "$GITHUB_REF_TYPE" == "branch" ]] && [[ "$GITHUB_REF_NAME" == release* ]]; then
+              step_function_workflows=$(echo "$changed_folders" | jq -r '[.[] | select(startswith("step-function-workflow/stg/"))]')
+            elif [[ "$GITHUB_REF_TYPE" == "tag" ]] && [[ "$GITHUB_REF_NAME" != *-rc* ]]; then
+              step_function_workflows=$(echo "$changed_folders" | jq -r '[.[] | select(startswith("step-function-workflow/prod/"))]')
+            else
+              echo "Branch does not match develop, release, or tag — skipping step-function-workflows."
+              step_function_workflows="[]"
+            fi 
+
+            lambda_functions=$(echo "$changed_folders" | jq -r '[.[] | select(startswith("functions"))]')
+            formatted_changed_folders=$(echo "$lambda_functions" | sed -e 's/^\[//' -e 's/\]$//' -e 's/\([^,]*\)/"\1"/g')
+            formatted_changed_folders="[$formatted_changed_folders]"
+            processed_folders=$(echo "$formatted_changed_folders" | jq -r 'map(split("/")[0:2] | join("/")) | unique')
+
+            if [[ "$processed_folders" == "null" ]]; then
+              processed_folders="[]"
+            fi
+
+            if [[ "$step_function_workflows" == "null" ]]; then
+              step_function_workflows="[]"
+            fi
+          fi
+
+          echo "Processed folders: $processed_folders"
+          echo "Step Function Workflows: $step_function_workflows"
+        
+          
