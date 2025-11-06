@@ -16,7 +16,7 @@ on:
   pull_request:
     branches:
       - main
-  paths:
+    paths:
       - functions/**
       - step-function-workflow/**
 
@@ -94,5 +94,6 @@ jobs:
         
 
           
+
 
 
