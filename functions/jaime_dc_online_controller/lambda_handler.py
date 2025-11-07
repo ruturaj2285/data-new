@@ -1,4 +1,3 @@
-# Standard library imports 
 import json
 import logging
 # Third library imports 
@@ -23,4 +22,5 @@ def lambda_handler(event, context):
     request_processor = RequestProcessor()
     result = request_processor.process_request(parsed_data)
     logging.info(f"{result}")
+
 
