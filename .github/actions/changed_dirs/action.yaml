@@ -61,7 +61,7 @@ runs:
           echo "No environment matched; no filtering applied"
         fi
 
-        formatted_changed_folders=$(echo "$changed_folders" | sed -e 's/^\[//' -e 's/\]$//' -e 's/[^,][^,]*/"&"/g')
+        formatted_changed_folders=$(echo "$input" | sed -e 's/^\[//' -e 's/\]$//' -e 's/[^,][^,]*/"&"/g')
         formatted_changed_folders="[$formatted_changed_folders]"
         echo "$formatted_changed_folders"
         processed_folders=$(echo "$formatted_changed_folders" | jq -r 'map(split("/")[0:2] | join("/")) | unique')
@@ -77,6 +77,7 @@ runs:
         echo "$step_function_workflows" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
       shell: bash
+
 
 
 
