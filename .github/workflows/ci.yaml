@@ -34,7 +34,6 @@ jobs:
         if: github.ref_type == 'branch' && (startsWith(github.ref_name, 'develop') || startsWith(github.ref_name, 'hotfixes') || startsWith(github.ref_name, 'release')) || github.ref_type == 'tag' || github.event_name == 'pull_request'
         uses: tj-actions/changed-files@v46.0.1
         with:
-          dir_names: true
           diff_relative: true
           dir_names_max_depth: "5"
           matrix: "true"
@@ -87,3 +86,4 @@ jobs:
 
           echo "::set-output name=processed_folders::$processed_folders"
           echo "::set-output name=step_function_workflows::$step_function_workflows"
+
