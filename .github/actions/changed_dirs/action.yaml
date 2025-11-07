@@ -19,8 +19,10 @@ inputs:
     required: true
 
 outputs:
-  filtered_step_function_files:
-    description: 'Filtered step-function files by environment'
+  processed_folders:
+    description: 'Processed unique Lambda function folders as JSON string'
+  step_function_workflows:
+    description: 'Filtered step-function files by environment as JSON string'
 
 runs:
   using: "composite"
@@ -67,6 +69,7 @@ runs:
         echo "processed_folders=$(echo $processed_folders | jq -c .)" >> "$GITHUB_OUTPUT"
         echo "step_function_workflows=$(echo $step_function_workflows | jq -c .)" >> "$GITHUB_OUTPUT"
       shell: bash
+
 
 
 
