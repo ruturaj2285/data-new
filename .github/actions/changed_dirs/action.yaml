@@ -29,6 +29,7 @@ runs:
         echo "List of changed Lambda functions folders: ${{ inputs.changed_functions }}"
         echo "Raw changed step-functions files input: ${{ inputs.changed_step_functions }}"
 
+        input='${{ inputs.changed_functions }}'
         raw_input='${{ inputs.changed_step_functions }}'
 
         # Remove leading and trailing brackets
@@ -60,7 +61,7 @@ runs:
           echo "No environment matched; no filtering applied"
         fi
 
-        formatted_folders=$(echo "$changed_functions" | sed -e 's/^\[//' -e 's/\]$//' -e 's/\([^, ]\+\)/"\1"/g')
+        formatted_folders=$(echo "$input" | sed -e 's/^\[//' -e 's/\]$//' -e 's/\([^, ]\+\)/"\1"/g')
         formatted_folders="[$formatted_folders]"
         processed_folders=$(echo "$formatted_folders" | jq -r 'map(split("/")[0:2] | join("/")) | unique')
 
@@ -75,3 +76,4 @@ runs:
         echo "$step_function_workflows" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
       shell: bash
+
