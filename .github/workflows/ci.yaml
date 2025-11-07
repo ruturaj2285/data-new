@@ -20,7 +20,7 @@ permissions:
 jobs:
   changed_files:
     environment: "build"
-    runs-on: ["jccai"]
+    runs-on: ubuntu-latest
 
     outputs:
       files: ${{ steps.extract-folders.outputs.processed_folders }}
@@ -62,3 +62,4 @@ jobs:
 
           changed_files="${{ steps.changed-Step-function-files.outputs.all_changed_files }}"
           echo "List of changed step-functions files: $changed_folders"
+
