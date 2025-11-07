@@ -1,22 +1,42 @@
-name: Changed Directories Extractor
-description: Extract and print changed directories and files
+name: CI - Changed-Dirs
+description: "Changed-Dirs"
 
 inputs:
-  changed_functions:
+  IS_DEV:
+    description: ""
+    required: true
+  IS_STG:
+    description: ""
+    required: true
+  IS_PROD:
+    description: ""
+    required: true
+  changed_functions:  
+    description: 'Changed Lambda functions folders'
     required: true
   changed_step_functions:
+    description: 'Changed step-function files'
     required: true
-  IS_DEV:
-    required: false
-  IS_STG:
-    required: false
-  IS_PROD:
-    required: false
 
 runs:
   using: "composite"
   steps:
     - run: |
-        echo "Changed Lambda functions folders: ${{ inputs.changed_functions }}"
-        echo "Changed step-functions files: ${{ inputs.changed_step_functions }}"
-      shell: bash
+        echo "List of changed Lambda functions folders: ${{ inputs.changed_functions }}"
+        echo "List of changed step-functions files: ${{ inputs.changed_step_functions }}"
+
+        filtered_files=""
+
+        if [ "${{ inputs.IS_DEV }}" == "true" ]; then
+          echo "Filtering for dev environment"
+          filtered_files=$(echo "${{ inputs.changed_step_functions }}" | tr ' ' '\n' | grep "^step-function-workflow/dev/" || true)
+        elif [ "${{ inputs.IS_STG }}" == "true" ]; then
+          echo "Filtering for stg environment"
+          filtered_files=$(echo "${{ inputs.changed_step_functions }}" | tr ' ' '\n' | grep "^step-function-workflow/stg/" || true)
+        elif [ "${{ inputs.IS_PROD }}" == "true" ]; then
+          echo "Filtering for prod environment"
+          filtered_files=$(echo "${{ inputs.changed_step_functions }}" | tr ' ' '\n' | grep "^step-function-workflow/prod/" || true)
+        fi
+
+        echo "Filtered step-function files for environment:"
+        echo "$filtered_files"
