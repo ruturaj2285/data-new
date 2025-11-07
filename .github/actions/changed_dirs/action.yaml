@@ -30,21 +30,8 @@ runs:
         echo "Raw changed step-functions files input: ${{ inputs.changed_step_functions }}"
 
         input='${{ inputs.changed_functions }}'
-        raw_input='${{ inputs.changed_step_functions }}'
 
-        # Remove leading and trailing brackets
-        cleaned_input=$(echo "$raw_input" | sed -e 's/^\[//' -e 's/\]$//')
-
-        # Split by comma or space into lines, remove empty lines
-        entries=$(echo "$cleaned_input" | tr ', ' '\n' | sed '/^$/d')
-
-        # Remove existing quotes and add quotes around each entry
-        quoted=$(echo "$entries" | sed -e 's/^"\(.*\)"$/\1/' -e 's/^/"/' -e 's/$/"/' | paste -sd "," -)
-
-        # Build valid JSON array string
-        formatted_changed_folders="[$quoted]"
-
-        echo "Formatted JSON array for filtering: $formatted_changed_folders"
+        formatted_changed_folders="[$(echo '${{ inputs.changed_step_functions }}' | sed -e 's/^\[//' -e 's/\]$//' | tr ', ' '\n' | sed '/^$/d; s/^"//; s/"$//; s/.*/"&"/' | paste -sd ',' -)]";
 
         step_function_workflows="[]"
 
@@ -77,6 +64,7 @@ runs:
         echo "$step_function_workflows" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
       shell: bash
+
 
 
 
