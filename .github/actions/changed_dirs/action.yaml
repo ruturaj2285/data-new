@@ -27,8 +27,9 @@ runs:
   steps:
     - run: |
         echo "List of changed Lambda functions folders: ${{ inputs.changed_functions }}"
-        echo "Raw changed step-functions files input: ${{ inputs.changed_step_functions }}"
+        echo "Step-functions files: ${{ inputs.changed_step_functions }}"
 
+        # Check Step Function Code Changes
         step_function='${{ inputs.changed_step_functions }}'
         if [[ -z "$step_function" || "$step_function" == "[]" ]]; then
           step_function_workflows="[]"
@@ -36,22 +37,20 @@ runs:
           formatted_changed_folders="[$(echo '${{ inputs.changed_step_functions }}' | sed -e 's/^\[//' -e 's/\]$//' | tr ', ' '\n' | sed '/^$/d; s/^"//; s/"$//; s/.*/"&"/' | paste -sd ',' -)]";
           echo "$formatted_changed_folders"
           if [ "${{ inputs.IS_DEV }}" = "true" ]; then
-            echo "Filtering for dev environment"
             step_function_workflows=$(echo "$formatted_changed_folders" | jq -r '[.[] | select(startswith("step-function-workflow/dev/"))]')
-            echo "Filtered step-function files for dev environment: $step_function_workflows"
+            echo "Step-function files for dev environment: $step_function_workflows"
           elif [ "${{ inputs.IS_STG }}" = "true" ]; then
-            echo "Filtering for stg environment"
             step_function_workflows=$(echo "$formatted_changed_folders" | jq -r '[.[] | select(startswith("step-function-workflow/stg/"))]')
-            echo "Filtered step-function files for stg environment: $step_function_workflows"
+            echo "Step-function files for stg environment: $step_function_workflows"
           elif [ "${{ inputs.IS_PROD }}" = "true" ]; then
-            echo "Filtering for prod environment"
             step_function_workflows=$(echo "$formatted_changed_folders" | jq -r '[.[] | select(startswith("step-function-workflow/prod/"))]')
-            echo "Filtered step-function files for prod environment: $step_function_workflows"
+            echo "Step-function files for prod environment: $step_function_workflows"
           else
             echo "No environment matched; no filtering applied"
           fi
         fi
 
+        # Check Lambda Function Folder Changes
         changed_folders='${{ inputs.changed_functions }}'
         if [[ -z "$changed_folders" || "$changed_folders" == "[]" ]]; then
           processed_folders="[]"
@@ -61,15 +60,14 @@ runs:
           if [[ "$processed_folders" == "null" ]]; then
               processed_folders="[]"
           else
-              echo "Filtered lambda function folders: $processed_folders" 
+              echo "Lambda function folders: $processed_folders" 
           fi
         fi
-  
-        # Export the filtered result as output using multiline syntax for GitHub Actions
-        echo "filtered_step_function_files<<EOF" >> $GITHUB_OUTPUT
-        echo "$step_function_workflows" >> $GITHUB_OUTPUT
-        echo "EOF" >> $GITHUB_OUTPUT
+
+        echo "processed_folders=$(echo $processed_folders | jq -c .)" >> "$GITHUB_OUTPUT"
+        echo "step_function_workflows=$(echo $step_function_workflows | jq -c .)" >> "$GITHUB_OUTPUT"
       shell: bash
+
 
 
 
