@@ -29,10 +29,7 @@ runs:
         echo "List of changed Lambda functions folders: ${{ inputs.changed_functions }}"
         echo "Raw changed step-functions files input: ${{ inputs.changed_step_functions }}"
 
-        input='${{ inputs.changed_functions }}'
-
         formatted_changed_folders="[$(echo '${{ inputs.changed_step_functions }}' | sed -e 's/^\[//' -e 's/\]$//' | tr ', ' '\n' | sed '/^$/d; s/^"//; s/"$//; s/.*/"&"/' | paste -sd ',' -)]";
-
         step_function_workflows="[]"
 
         if [ "${{ inputs.IS_DEV }}" = "true" ]; then
@@ -48,7 +45,7 @@ runs:
           echo "No environment matched; no filtering applied"
         fi
 
-        formatted_changed_folders="[$(echo "$input" | sed -e 's/^\[//' -e 's/\]$//' | tr ', ' '\n' | sed '/^$/d; s/^"//; s/"$//; s/.*/"&"/' | paste -sd , -)]"
+        formatted_changed_folders="[$(echo '${{ inputs.changed_functions }}' | sed -e 's/^\[//' -e 's/\]$//' | tr ', ' '\n' | sed '/^$/d; s/^"//; s/"$//; s/.*/"&"/' | paste -sd , -)]"
         processed_folders=$(echo "$formatted_changed_folders" | jq -r 'map(split("/")[0:2] | join("/")) | unique')
         echo "Formatted changed folders JSON array: $processed_folders"
 
@@ -64,6 +61,7 @@ runs:
         echo "$step_function_workflows" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
       shell: bash
+
 
 
 
