@@ -9,12 +9,13 @@ on:
       - "develop/*"
     tags:
       - "v*.*.*"
+    paths:
+      - functions/**
+      - step-function-workflow/**
 
   pull_request:
     branches:
       - main
-  paths:
-      - functions/**
 
 permissions:
   id-token: write
@@ -66,3 +67,4 @@ jobs:
           IS_DEV: ${{ github.ref_type == 'branch' && startsWith(github.ref_name, 'develop') || startsWith(github.ref_name, 'hotfixes') }}
           IS_STG: ${{ github.ref_type == 'branch' && startsWith(github.ref_name, 'release') }}
           IS_PROD: ${{ github.ref_type == 'tag' && !contains(github.ref_name, '-rc') || github.event_name == 'pull_request' }}
+
