@@ -61,10 +61,9 @@ runs:
           echo "No environment matched; no filtering applied"
         fi
 
-        formatted_changed_folders=$(echo "$input" | sed -e 's/^\[//' -e 's/\]$//' -e 's/[^,][^,]*/"&"/g')
-        formatted_changed_folders="[$formatted_changed_folders]"
-        echo "$formatted_changed_folders"
-        processed_folders=$(echo "$formatted_changed_folders" | jq -r 'map(split("/")[0:2] | join("/")) | unique')
+        formatted_changed_folders="[$(echo "$input" | sed -e 's/^\[//' -e 's/\]$//' | tr ', ' '\n' | sed '/^$/d; s/^"//; s/"$//; s/.*/"&"/' | paste -sd , -)]"
+        echo "Formatted changed folders JSON array: $formatted_changed_folders"
+
 
         echo "Filtered lambda function folders"
         echo "$processed_folders"
@@ -77,6 +76,7 @@ runs:
         echo "$step_function_workflows" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
       shell: bash
+
 
 
 
