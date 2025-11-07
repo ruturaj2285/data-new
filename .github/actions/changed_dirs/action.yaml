@@ -30,7 +30,7 @@ runs:
         echo "Raw changed step-functions files input: ${{ inputs.changed_step_functions }}"
 
         step_function='${{ inputs.changed_step_functions }}'
-        if [[ -z "$changed_step_function" || "$changed_step_function" == "[]" ]]; then
+        if [[ -z "$step_function" || "$step_function" == "[]" ]]; then
           step_function_workflows="[]"
         else
           formatted_changed_folders="[$(echo '${{ inputs.changed_step_functions }}' | sed -e 's/^\[//' -e 's/\]$//' | tr ', ' '\n' | sed '/^$/d; s/^"//; s/"$//; s/.*/"&"/' | paste -sd ',' -)]";
@@ -70,6 +70,7 @@ runs:
         echo "$step_function_workflows" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
       shell: bash
+
 
 
 
