@@ -12,10 +12,10 @@ inputs:
     description: "Is this a production environment"
     required: true
   changed_functions:  
-    description: 'Changed Lambda functions folders (JSON array)'
+    description: 'Changed Lambda functions folders (JSON array or similar)'
     required: true
   changed_step_functions:
-    description: 'Changed step-function files (JSON array)'
+    description: 'Changed step-function files (JSON array or similar)'
     required: true
 
 outputs:
@@ -27,21 +27,28 @@ runs:
   steps:
     - run: |
         echo "List of changed Lambda functions folders: ${{ inputs.changed_functions }}"
-        echo "List of changed step-functions files: ${{ inputs.changed_step_functions }}"
+        echo "Raw changed step-functions files input: ${{ inputs.changed_step_functions }}"
 
-        changed_folders="${{ inputs.changed_step_functions }}"
+        # Sanitize input: remove surrounding brackets if any, then add quotes to each element,
+        # finally recreate a valid JSON array for jq parsing
+        raw_input='${{ inputs.changed_step_functions }}'
+        cleaned_input=$(echo "$raw_input" | sed -e 's/^\[//' -e 's/\]$//')
+        formatted_changed_folders=$(echo "$cleaned_input" | sed -e 's/\([^, ]\+\)/"\1"/g')
+        formatted_changed_folders="[$formatted_changed_folders]"
+
+        echo "Formatted JSON array for filtering: $formatted_changed_folders"
 
         step_function_workflows="[]"
 
         if [ "${{ inputs.IS_DEV }}" = "true" ]; then
           echo "Filtering for dev environment"
-          step_function_workflows=$(echo "$changed_folders" | jq -r '[.[] | select(startswith("step-function-workflow/dev/"))]')
+          step_function_workflows=$(echo "$formatted_changed_folders" | jq -r '[.[] | select(startswith("step-function-workflow/dev/"))]')
         elif [ "${{ inputs.IS_STG }}" = "true" ]; then
           echo "Filtering for stg environment"
-          step_function_workflows=$(echo "$changed_folders" | jq -r '[.[] | select(startswith("step-function-workflow/stg/"))]')
+          step_function_workflows=$(echo "$formatted_changed_folders" | jq -r '[.[] | select(startswith("step-function-workflow/stg/"))]')
         elif [ "${{ inputs.IS_PROD }}" = "true" ]; then
           echo "Filtering for prod environment"
-          step_function_workflows=$(echo "$changed_folders" | jq -r '[.[] | select(startswith("step-function-workflow/prod/"))]')
+          step_function_workflows=$(echo "$formatted_changed_folders" | jq -r '[.[] | select(startswith("step-function-workflow/prod/"))]')
         else
           echo "No environment matched; no filtering applied"
         fi
@@ -49,6 +56,6 @@ runs:
         echo "Filtered step-function files for environment:"
         echo "$step_function_workflows"
 
-        # Export the filtered result as output to be usable by caller
+        # Export the filtered result as output
         echo "filtered_step_function_files=$step_function_workflows" >> $GITHUB_OUTPUT
       shell: bash
