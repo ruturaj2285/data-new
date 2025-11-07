@@ -1,0 +1,26 @@
+name: CI - Changed-Dirs
+description: "Changed-Dirs"
+
+inputs:
+  IS_DEV:
+    description: ""
+    required: true
+  IS_STG:
+    description: ""
+    required: true
+  IS_PROD:
+    description: ""
+    required: true
+  changed_functions:  
+    description: 'Changed Lambda functions folders'
+    required: true
+  changed_step_functions:
+    description: 'Changed step-function files'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - run: |
+        echo "List of changed Lambda functions folders: ${{ inputs.changed_functions }}"
+        echo "List of changed step-functions files: ${{ inputs.changed_step_functions }}"
