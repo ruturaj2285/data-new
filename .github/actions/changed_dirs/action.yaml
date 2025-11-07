@@ -26,14 +26,13 @@ runs:
   using: "composite"
   steps:
     - run: |
-        echo "List of changed Lambda functions folders: ${{ inputs.changed_functions }}"
-        echo "Step-functions files: ${{ inputs.changed_step_functions }}"
-
+        
         # Check Step Function Code Changes
         step_function='${{ inputs.changed_step_functions }}'
         if [[ -z "$step_function" || "$step_function" == "[]" ]]; then
           step_function_workflows="[]"
         else
+          echo "List of changed Step-functions files: ${{ inputs.changed_step_functions }}"
           formatted_changed_folders="[$(echo '${{ inputs.changed_step_functions }}' | sed -e 's/^\[//' -e 's/\]$//' | tr ', ' '\n' | sed '/^$/d; s/^"//; s/"$//; s/.*/"&"/' | paste -sd ',' -)]";
           echo "$formatted_changed_folders"
           if [ "${{ inputs.IS_DEV }}" = "true" ]; then
@@ -55,6 +54,7 @@ runs:
         if [[ -z "$changed_folders" || "$changed_folders" == "[]" ]]; then
           processed_folders="[]"
         else
+          echo "List of changed Lambda functions folders: ${{ inputs.changed_functions }}"
           formatted_changed_folders="[$(echo '${{ inputs.changed_functions }}' | sed -e 's/^\[//' -e 's/\]$//' | tr ', ' '\n' | sed '/^$/d; s/^"//; s/"$//; s/.*/"&"/' | paste -sd , -)]"
           processed_folders=$(echo "$formatted_changed_folders" | jq -r 'map(split("/")[0:2] | join("/")) | unique')
           if [[ "$processed_folders" == "null" ]]; then
@@ -67,6 +67,7 @@ runs:
         echo "processed_folders=$(echo $processed_folders | jq -c .)" >> "$GITHUB_OUTPUT"
         echo "step_function_workflows=$(echo $step_function_workflows | jq -c .)" >> "$GITHUB_OUTPUT"
       shell: bash
+
 
 
 
