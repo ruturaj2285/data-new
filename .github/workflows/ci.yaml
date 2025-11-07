@@ -61,5 +61,6 @@ jobs:
           echo "List of changed functions folders: $changed_folders"
 
           changed_files="${{ steps.changed-Step-function-files.outputs.all_changed_files }}"
-          echo "List of changed step-functions files: $changed_folders"
+          echo "List of changed step-functions files: $changed_files"
+
 
