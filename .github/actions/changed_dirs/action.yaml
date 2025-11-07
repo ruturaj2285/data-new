@@ -3,20 +3,24 @@ description: "Changed-Dirs"
 
 inputs:
   IS_DEV:
-    description: ""
+    description: "Is this a dev environment"
     required: true
   IS_STG:
-    description: ""
+    description: "Is this a staging environment"
     required: true
   IS_PROD:
-    description: ""
+    description: "Is this a production environment"
     required: true
   changed_functions:  
-    description: 'Changed Lambda functions folders'
+    description: 'Changed Lambda functions folders (JSON array)'
     required: true
   changed_step_functions:
-    description: 'Changed step-function files'
+    description: 'Changed step-function files (JSON array)'
     required: true
+
+outputs:
+  filtered_step_function_files:
+    description: 'Filtered step-function files by environment'
 
 runs:
   using: "composite"
@@ -25,22 +29,26 @@ runs:
         echo "List of changed Lambda functions folders: ${{ inputs.changed_functions }}"
         echo "List of changed step-functions files: ${{ inputs.changed_step_functions }}"
 
-        filtered_files=""
+        changed_folders="${{ inputs.changed_step_functions }}"
 
-        if [ "${{ inputs.IS_DEV }}" == "true" ]; then
+        step_function_workflows="[]"
+
+        if [ "${{ inputs.IS_DEV }}" = "true" ]; then
           echo "Filtering for dev environment"
-          filtered_files=$(echo "${{ inputs.changed_step_functions }}" | tr ' ' '\n' | grep "^step-function-workflow/dev/" || true)
-        elif [ "${{ inputs.IS_STG }}" == "true" ]; then
+          step_function_workflows=$(echo "$changed_folders" | jq -r '[.[] | select(startswith("step-function-workflow/dev/"))]')
+        elif [ "${{ inputs.IS_STG }}" = "true" ]; then
           echo "Filtering for stg environment"
-          filtered_files=$(echo "${{ inputs.changed_step_functions }}" | tr ' ' '\n' | grep "^step-function-workflow/stg/" || true)
-        elif [ "${{ inputs.IS_PROD }}" == "true" ]; then
+          step_function_workflows=$(echo "$changed_folders" | jq -r '[.[] | select(startswith("step-function-workflow/stg/"))]')
+        elif [ "${{ inputs.IS_PROD }}" = "true" ]; then
           echo "Filtering for prod environment"
-          filtered_files=$(echo "${{ inputs.changed_step_functions }}" | tr ' ' '\n' | grep "^step-function-workflow/prod/" || true)
+          step_function_workflows=$(echo "$changed_folders" | jq -r '[.[] | select(startswith("step-function-workflow/prod/"))]')
+        else
+          echo "No environment matched; no filtering applied"
         fi
 
         echo "Filtered step-function files for environment:"
-        echo "$filtered_files"
+        echo "$step_function_workflows"
 
+        # Export the filtered result as output to be usable by caller
+        echo "filtered_step_function_files=$step_function_workflows" >> $GITHUB_OUTPUT
       shell: bash
-
-
