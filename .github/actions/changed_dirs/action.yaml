@@ -63,6 +63,7 @@ runs:
 
         formatted_folders=$(echo "$input" | sed -e 's/^\[//' -e 's/\]$//' -e 's/\([^, ]\+\)/"\1"/g')
         formatted_folders="[$formatted_folders]"
+        echo "$formatted_folders"
         processed_folders=$(echo "$formatted_folders" | jq -r 'map(split("/")[0:2] | join("/")) | unique')
 
         echo "Filtered lambda function folders"
@@ -76,4 +77,5 @@ runs:
         echo "$step_function_workflows" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
       shell: bash
+
 
