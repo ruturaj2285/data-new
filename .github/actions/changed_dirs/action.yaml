@@ -60,6 +60,13 @@ runs:
           echo "No environment matched; no filtering applied"
         fi
 
+        formatted_folders=$(echo "$changed_functions" | sed -e 's/^\[//' -e 's/\]$//' -e 's/\([^, ]\+\)/"\1"/g')
+        formatted_folders="[$formatted_folders]"
+        processed_folders=$(echo "$formatted_folders" | jq -r 'map(split("/")[0:2] | join("/")) | unique')
+
+        echo "Filtered lambda function folders"
+        echo "$processed_folders"
+
         echo "Filtered step-function files for environment:"
         echo "$step_function_workflows"
 
