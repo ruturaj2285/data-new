@@ -41,5 +41,6 @@ runs:
         echo "Filtered step-function files for environment:"
         echo "$filtered_files"
 
-        shell: bash
+      shell: bash
+
 
