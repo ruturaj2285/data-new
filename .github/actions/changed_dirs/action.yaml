@@ -29,11 +29,11 @@ runs:
         echo "List of changed Lambda functions folders: ${{ inputs.changed_functions }}"
         echo "Raw changed step-functions files input: ${{ inputs.changed_step_functions }}"
 
-        changed_step_function='${{ inputs.changed_step_functions }}'
+        step_function='${{ inputs.changed_step_functions }}'
         if [[ -z "$changed_step_function" || "$changed_step_function" == "[]" ]]; then
           step_function_workflows="[]"
         else
-          formatted_changed_folders="[$(echo '${{ inputs.changed_step_function }}' | sed -e 's/^\[//' -e 's/\]$//' | tr ', ' '\n' | sed '/^$/d; s/^"//; s/"$//; s/.*/"&"/' | paste -sd ',' -)]";
+          formatted_changed_folders="[$(echo '${{ inputs.changed_step_functions }}' | sed -e 's/^\[//' -e 's/\]$//' | tr ', ' '\n' | sed '/^$/d; s/^"//; s/"$//; s/.*/"&"/' | paste -sd ',' -)]";
           echo "$formatted_changed_folders"
           if [ "${{ inputs.IS_DEV }}" = "true" ]; then
             echo "Filtering for dev environment"
@@ -70,6 +70,7 @@ runs:
         echo "$step_function_workflows" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
       shell: bash
+
 
 
 
