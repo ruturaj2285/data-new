@@ -69,11 +69,6 @@ jobs:
           IS_STG: ${{ github.ref_type == 'branch' && startsWith(github.ref_name, 'release') }}
           IS_PROD: ${{ github.ref_type == 'tag' && !contains(github.ref_name, '-rc') || github.event_name == 'pull_request' }}
 
-      - name: Debug composite outputs
-        run: |
-            echo "DEBUG processed_folders: ${{ steps.extract-folders.outputs.processed_folders }}"
-            echo "DEBUG step_function_workflows: ${{ steps.extract-folders.outputs.step_function_workflows }}"
-
   step_function_update:
       needs: changed_files
       environment: "build"
@@ -84,6 +79,7 @@ jobs:
         run: |
           echo "Filtered step function files:"
           echo '${{ needs.changed_files.outputs.step_function_workflows }}'         
+
 
 
 
