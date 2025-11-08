@@ -69,11 +69,11 @@ runs:
           fi
         fi
 
-
-        echo "Step files: $step_function_workflows"
         echo "step_function_workflows=$(echo $step_function_workflows | jq -c .)" >> "$GITHUB_OUTPUT"
+        echo "processed_folders=$(echo $processed_folders | jq -c .)" >> "$GITHUB_OUTPUT"
 
       shell: bash
+
 
 
 
