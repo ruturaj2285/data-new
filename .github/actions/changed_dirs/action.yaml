@@ -21,13 +21,16 @@ inputs:
 outputs:
   processed_folders:
     description: 'Processed unique Lambda function folders as JSON string'
+    value: ${{ steps.main.outputs.processed_folders }}
   step_function_workflows:
     description: 'Filtered step-function files by environment as JSON string'
+    value: ${{ steps.main.outputs.step_function_workflows }}
 
 runs:
   using: "composite"
   steps:
-    - run: |
+    - id: main
+      run: |
         
         # Check Step Function Code Changes
         step_function='${{ inputs.changed_step_functions }}'
@@ -71,6 +74,7 @@ runs:
         echo "step_function_workflows=$(echo $step_function_workflows | jq -c .)" >> "$GITHUB_OUTPUT"
 
       shell: bash
+
 
 
 
