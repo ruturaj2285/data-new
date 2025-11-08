@@ -78,7 +78,19 @@ jobs:
       - name: Use filtered step function workflows
         run: |
           echo "Filtered step function files:"
-          echo '${{ needs.changed_files.outputs.step_function_workflows }}'         
+          echo '${{ needs.changed_files.outputs.step_function_workflows }}'     
+
+  build:
+      needs: changed_files
+      environment: "build"
+      runs-on: ubuntu-latest
+      
+      steps:
+      - name: Use filtered lambda folder
+        run: |
+          echo "Filtered Lambda Function:"
+          echo '${{ needs.changed_files.outputs.processed_folders }}'  
+
 
 
 
