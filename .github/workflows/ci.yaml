@@ -71,9 +71,9 @@ jobs:
 
   step_function_update:
       needs: changed_files
+      if: ${{ needs.changed_files.outputs.step_function_workflows != '[]' && needs.changed_files.outputs.step_function_workflows != '' }}
       environment: "build"
       runs-on: ubuntu-latest
-      
       steps:
       - name: Use filtered step function workflows
         run: |
@@ -82,14 +82,15 @@ jobs:
 
   build:
       needs: changed_files
+      if: ${{ needs.changed_files.outputs.processed_folders != '[]' && needs.changed_files.outputs.processed_folders != '' }}
       environment: "build"
       runs-on: ubuntu-latest
-      
       steps:
       - name: Use filtered lambda folder
         run: |
           echo "Filtered Lambda Function:"
           echo '${{ needs.changed_files.outputs.processed_folders }}'  
+
 
 
 
