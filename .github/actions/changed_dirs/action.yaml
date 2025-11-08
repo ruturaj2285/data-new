@@ -66,12 +66,12 @@ runs:
           fi
         fi
 
-        echo "processed_folders=$(echo $processed_folders | jq -c .)" >> "$GITHUB_OUTPUT"
-        echo "step_function_workflows<<EOF" >> "$GITHUB_OUTPUT"
-        echo "$step_function_workflows" | jq -c . >> "$GITHUB_OUTPUT"
-        echo "EOF" >> "$GITHUB_OUTPUT"
+
+        echo "Step files: $step_function_workflows"
+        echo "step_function_workflows=$(echo $step_function_workflows | jq -c .)" >> "$GITHUB_OUTPUT"
 
       shell: bash
+
 
 
 
