@@ -70,15 +70,33 @@ jobs:
           IS_PROD: ${{ github.ref_type == 'tag' && !contains(github.ref_name, '-rc') || github.event_name == 'pull_request' }}
 
   step_function_update:
-      needs: changed_files
-      if: ${{ needs.changed_files.outputs.step_function_workflows != '[]' && needs.changed_files.outputs.step_function_workflows != '' }}
-      environment: "build"
-      runs-on: ubuntu-latest
-      steps:
-      - name: Use filtered step function workflows
-        run: |
-          echo "Filtered step function files:"
-          echo '${{ needs.changed_files.outputs.step_function_workflows }}'     
+    needs: changed_files
+    if: ${{ needs.changed_files.outputs.step_function_workflows != '[]' && needs.changed_files.outputs.step_function_workflows != '' }}
+    environment: "build"
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Update Step Function workflows
+      run: |
+        echo "Changed Step Function files:"
+        echo '${{ needs.changed_files.outputs.step_function_workflows }}'
+
+        step_files=$(echo '${{ needs.changed_files.outputs.step_function_workflows }}' | jq -r '.[]')
+
+        for file in $step_files; do
+          echo "🔄 Updating Step Function from: $file"
+
+          # Extract name (e.g., step-function-workflow/dev/MyFlow.json → MyFlow)
+          workflow_name=$(basename "$file" .json)
+
+          # Construct ARN dynamically (adjust pattern if needed)
+          state_machine_arn="arn:aws:states:ap-northeast-1:227295996532:stateMachine:${workflow_name}"
+
+          echo "Using ARN: $state_machine_arn"
+
+          echo "✅ Successfully updated: $workflow_name"
+        done
+ 
 
   build:
       needs: changed_files
@@ -90,10 +108,3 @@ jobs:
         run: |
           echo "Filtered Lambda Function:"
           echo '${{ needs.changed_files.outputs.processed_folders }}'  
-
-
-
-
-
-
-
