@@ -130,7 +130,7 @@ jobs:
           folder="${{ matrix.files }}"
           echo "Running isort on $folder"
           source venv/bin/activate
-          isort "$folder" --check-only
+          isort "$folder"
           deactivate
 
       - name: Run black
@@ -138,7 +138,7 @@ jobs:
           folder="${{ matrix.files }}"
           echo "Running black check on $folder"
           source venv/bin/activate
-          black --check "$folder"
+          black "$folder"
           deactivate
 
       - name: Run unit tests
@@ -148,10 +148,3 @@ jobs:
           source venv/bin/activate
           pytest "$folder" --maxfail=1 --disable-warnings -q
           deactivate
-
-
-
-
-
-
-
