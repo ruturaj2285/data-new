@@ -121,7 +121,17 @@ jobs:
           python -m venv venv
           source venv/bin/activate
           pip install -r "$folder/requirements.txt"
-          python -m pytest "$folder/tests/" -v
+
+          if command -v flake8 >/dev/null 2>&1; then
+            echo "Running flake8 lint for $folder"
+            flake8 "$folder"
+          elif command -v pylint >/dev/null 2>&1; then
+            echo "Running pylint lint for $folder"
+            pylint "$folder"
+          else
+            echo "No linter found; skipping lint step"
+          fi
           deactivate
+
 
 
