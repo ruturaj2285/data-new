@@ -118,9 +118,3 @@ jobs:
         run: |
           folder="${{ matrix.files }}"
           echo "Running build/test in folder: $folder"
-
-          deactivate
-
-
-
-
