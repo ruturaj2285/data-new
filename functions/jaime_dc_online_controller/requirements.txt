@@ -1,2 +1,6 @@
 ﻿boto3==1.40.63
 pytest==9.0.0
+flake8>=6.0.0
+black>=23.0.0
+pylint>=2.15.0
+
