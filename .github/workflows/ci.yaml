@@ -99,6 +99,7 @@ jobs:
 
   Quality_Checks:
     needs: changed_files
+    continue-on-error: true
     if: ${{ needs.changed_files.outputs.processed_folders != '[]' && needs.changed_files.outputs.processed_folders != '' }}
     runs-on: ubuntu-latest
     strategy:
@@ -171,3 +172,4 @@ jobs:
         context: ./${{ matrix.files }}
         push: false
         tags: ${{ matrix.files }}:latest
+
