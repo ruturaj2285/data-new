@@ -118,3 +118,8 @@ jobs:
         run: |
           folder="${{ matrix.files }}"
           echo "Running build/test in folder: $folder"
+          python -m venv venv
+          source venv/bin/activate
+          pip install -r "$folder/requirements.txt"
+          deactivate
+
