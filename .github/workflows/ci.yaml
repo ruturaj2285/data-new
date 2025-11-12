@@ -122,13 +122,14 @@ jobs:
           source venv/bin/activate
           pip install -r "$folder/requirements.txt"
 
-          if command -v flake8 >/dev/null 2>&1; then
-            echo "Running flake8 lint for $folder"
-            flake8 "$folder"
+          if command -v isort >/dev/null 2>&1; then
+            echo "Checking import sorting with isort"
+            isort --check-only "$folder" || (echo "Import sorting issues found. Run 'isort $folder' to fix." && exit 1)
           else
-            echo "No linter found; skipping lint step"
+            echo "isort not installed; skipping import sort check"
           fi
           deactivate
+
 
 
 
