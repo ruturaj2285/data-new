@@ -95,16 +95,30 @@ jobs:
           echo "Using ARN: $state_machine_arn"
 
           echo "✅ Successfully updated: $workflow_name"
-        done
- 
+        done 
 
   build:
-      needs: changed_files
-      if: ${{ needs.changed_files.outputs.processed_folders != '[]' && needs.changed_files.outputs.processed_folders != '' }}
-      environment: "build"
-      runs-on: ubuntu-latest
-      steps:
-      - name: Use filtered lambda folder
+    if: ${{ needs.changed_files.outputs.processed_folders != '[]' && needs.changed_files.outputs.processed_folders != '' }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        files: ${{ fromJSON(needs.changed_files.outputs.processed_folders) }}
+      max-parallel: 6
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+  
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+  
+      - name: Build and test changed folder
         run: |
-          echo "Filtered Lambda Function:"
-          echo '${{ needs.changed_files.outputs.processed_folders }}'  
+          folder="${{ matrix.files }}"
+          echo "Running build/test in folder: $folder"
+
+          deactivate
+
+
+
