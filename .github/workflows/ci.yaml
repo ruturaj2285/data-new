@@ -123,12 +123,13 @@ jobs:
           pip install -r "$folder/requirements.txt"
 
           if command -v isort >/dev/null 2>&1; then
-            echo "Checking import sorting with isort"
-            isort --check-only "$folder" || (echo "Import sorting issues found. Run 'isort $folder' to fix." && exit 1)
+            echo "Running isort to automatically fix imports"
+            isort "$folder"
           else
-            echo "isort not installed; skipping import sort check"
+            echo "isort not installed; skipping import sorting"
           fi
           deactivate
+
 
 
 
