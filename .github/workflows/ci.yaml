@@ -105,35 +105,48 @@ jobs:
       matrix:
         files: ${{ fromJSON(needs.changed_files.outputs.processed_folders) }}
       max-parallel: 6
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-  
+
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.12'
-  
-      - name: Build and test changed folder
+
+      - name: Create virtual environment and install dependencies
         run: |
           folder="${{ matrix.files }}"
-          echo "Running Quality Checks in folder: $folder"
+          echo "Setting up virtual environment for $folder"
           python -m venv venv
           source venv/bin/activate
           pip install -r "$folder/requirements.txt"
+          pip install isort black pytest
+          deactivate
 
-          if command -v isort >/dev/null 2>&1; then
-            echo "Running isort to automatically fix imports"
-            isort "$folder"
-          else
-            echo "isort not installed; skipping import sorting"
-          fi
-          if command -v black >/dev/null 2>&1; then
-            echo "Checking code format with black --check"
-            black --check "$folder"
-          else
-            echo "Black not installed; skipping formatting check"
-          fi
+      - name: Run isort
+        run: |
+          folder="${{ matrix.files }}"
+          echo "Running isort on $folder"
+          source venv/bin/activate
+          isort "$folder" --check-only
+          deactivate
+
+      - name: Run black
+        run: |
+          folder="${{ matrix.files }}"
+          echo "Running black check on $folder"
+          source venv/bin/activate
+          black --check "$folder"
+          deactivate
+
+      - name: Run unit tests
+        run: |
+          folder="${{ matrix.files }}"
+          echo "Running unit tests in $folder"
+          source venv/bin/activate
+          pytest "$folder" --maxfail=1 --disable-warnings -q
           deactivate
 
 
