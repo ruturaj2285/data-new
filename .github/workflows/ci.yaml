@@ -130,7 +130,7 @@ jobs:
           folder="${{ matrix.files }}"
           echo "Running isort on $folder"
           source venv/bin/activate
-          isort "$folder"
+          isort "$folder" --check-only
           deactivate
 
       - name: Run black
@@ -138,7 +138,7 @@ jobs:
           folder="${{ matrix.files }}"
           echo "Running black check on $folder"
           source venv/bin/activate
-          black "$folder"
+          black --check "$folder"
           deactivate
 
       - name: Run unit tests
@@ -148,3 +148,26 @@ jobs:
           source venv/bin/activate
           pytest "$folder" --maxfail=1 --disable-warnings -q
           deactivate
+
+  Build_and_Scan:
+    needs: Quality_Checks
+    if: ${{ needs.changed_files.outputs.processed_folders != '[]' && needs.changed_files.outputs.processed_folders != '' }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        files: ${{ fromJSON(needs.changed_files.outputs.processed_folders) }}
+      max-parallel: 6
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build Docker image
+      uses: docker/build-push-action@v6
+      with:
+        context: ./${{ matrix.files }}
+        push: false
+        tags: ${{ matrix.files }}:latest
