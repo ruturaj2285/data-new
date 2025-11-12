@@ -128,7 +128,14 @@ jobs:
           else
             echo "isort not installed; skipping import sorting"
           fi
+          if command -v black >/dev/null 2>&1; then
+            echo "Checking code format with black --check"
+            black --check "$folder"
+          else
+            echo "Black not installed; skipping formatting check"
+          fi
           deactivate
+
 
 
 
